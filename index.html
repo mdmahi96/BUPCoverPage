@@ -788,8 +788,8 @@
       </div>
 
       <div class="form-group">
-        <label>Team Name</label>
-        <input type="text" id="teamName" value="Team Name" placeholder="e.g. Team Alpha">
+        <label>Team Name (optional)</label>
+        <input type="text" id="teamName" value="" placeholder="e.g. Team Alpha">
       </div>
 
       <div id="teamMembers"></div>
@@ -871,7 +871,17 @@
           <div class="team-name" id="previewTeamName"></div>
         </div>
 
-        <table class="team-table">
+        <!-- Single member display -->
+        <div id="singleMemberDisplay" style="display:none; text-align:center; margin-bottom: 30px;">
+          <div style="font-size: 13pt; font-family: 'Times New Roman', Times, serif;">
+            <div id="previewSingleName"></div>
+            <div style="margin-top: 4px;">ID: <span id="previewSingleId"></span></div>
+            <div style="margin-top: 4px;">Sec: <span id="previewSingleSection"></span></div>
+          </div>
+        </div>
+
+        <!-- Multiple members table -->
+        <table class="team-table" id="multiMemberTable">
           <thead>
             <tr>
               <th>Name:</th>
@@ -905,10 +915,8 @@
   /* ══ Default data ══ */
   const defaultMembers = [
     { name: "MD MUZTABA RAFID MAHI",   id: "25241610060", section: "B" },
-    { name: "NUZHAT HASAN",            id: "25241610102", section: "B" },
     { name: "SANJIDA ISLAM MITHY",     id: "25241610126", section: "B" },
     { name: "SUMYA AKTER KEYA",        id: "25241610164", section: "B" },
-    { name: "MD. SAMIUL ISLAM SOWAD",  id: "25241610166", section: "B" },
   ];
 
   /* ══ Mobile tab switch ══ */
@@ -1009,18 +1017,41 @@
 
     const tbody = g('previewTeamBody');
     tbody.innerHTML = '';
-    document.querySelectorAll('.team-member').forEach(member => {
+    const members = document.querySelectorAll('.team-member');
+    const validMembers = [];
+    members.forEach(member => {
       const inputs = member.querySelectorAll('input');
       if (inputs[0].value || inputs[1].value || inputs[2].value) {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${inputs[0].value}</td>
-          <td>${inputs[1].value}</td>
-          <td>${inputs[2].value}</td>
-        `;
-        tbody.appendChild(row);
+        validMembers.push({
+          name: inputs[0].value,
+          id: inputs[1].value,
+          section: inputs[2].value
+        });
       }
     });
+
+    const singleDisplay = g('singleMemberDisplay');
+    const multiTable = g('multiMemberTable');
+
+    if (validMembers.length === 1) {
+      g('previewSingleName').textContent = validMembers[0].name;
+      g('previewSingleId').textContent = validMembers[0].id;
+      g('previewSingleSection').textContent = validMembers[0].section;
+      singleDisplay.style.display = 'block';
+      multiTable.style.display = 'none';
+    } else {
+      singleDisplay.style.display = 'none';
+      multiTable.style.display = 'table';
+      validMembers.forEach(member => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${member.name}</td>
+          <td>${member.id}</td>
+          <td>${member.section}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
   }
 
   /* Bind all top-level inputs/textareas */
